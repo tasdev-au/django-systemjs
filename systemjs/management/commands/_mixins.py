@@ -12,7 +12,7 @@ from django.conf import settings
 from django.core.management.base import CommandError
 from django.core.management.utils import handle_extensions
 from django.template import loader, TemplateDoesNotExist
-from django.template.base import TOKEN_BLOCK
+from django.template.base import TokenType
 from django.template.loaders.app_directories import get_app_template_dirs
 
 from systemjs.compat import Lexer
@@ -88,11 +88,11 @@ class TemplateDiscoveryMixin(object):
             for tpl_name, fp in all_files:
                 # this is the most performant - a testcase that used the loader with tpl_name
                 # was about 8x slower for a project with ~5 apps in different templates :(
-                with io.open(fp, 'r', encoding=settings.FILE_CHARSET) as template_file:
+                with io.open(fp, 'r', encoding='utf-8') as template_file:
                     src_data = template_file.read()
 
                 for t in Lexer(src_data).tokenize():
-                    if t.token_type == TOKEN_BLOCK:
+                    if t.token_type == TokenType.BLOCK:
                         imatch = SYSTEMJS_TAG_RE.match(t.contents)
                         if imatch:
                             all_apps.setdefault(tpl_name, [])
